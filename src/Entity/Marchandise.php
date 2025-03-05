@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Enum\CamionTypeEnum; // Ajoute cette ligne
 
 #[ORM\Entity]
+#[ORM\Table(name: "Marchandises")]
 class Marchandise
 {
     #[ORM\Id]
