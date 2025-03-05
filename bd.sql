@@ -34,6 +34,13 @@ CREATE TABLE Marchandises(
    CONSTRAINT FK_Marchandises_Cargaisons FOREIGN KEY(id_cargaison) REFERENCES Cargaisons(id_cargaison) ON DELETE CASCADE
 );
 
+CREATE TABLE Logins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) CHECK (role IN ('chauffeur', 'logisticien', 'admin'))
+);
+
 
 INSERT INTO Camions (immat, type_camion, poids_transport) VALUES
 ('AB-123-CD', 'frigo', 18000.00),
@@ -120,3 +127,6 @@ FROM Cargaisons
 GROUP BY ville_arrivee
 ORDER BY nombre_livraisons DESC
 LIMIT 1;
+
+
+
