@@ -37,8 +37,7 @@ CREATE TABLE Marchandises(
 CREATE TABLE Logins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) CHECK (role IN ('chauffeur', 'logisticien', 'admin'))
+    password_hash VARCHAR(255) NOT NULL
 );
 
 
@@ -67,33 +66,33 @@ INSERT INTO Marchandises (nom, type_requis, poids, id_cargaison) VALUES
 ('Béton', 'plateau', 14000.00, 4),
 ('Poissons', 'frigo', 2000.00, 1);
 
+INSERT INTO Logins (username, password_hash, role) VALUES
+('chauffeur1', SHA2('motdepasse1', 256), 'chauffeur'),
+('logisticien1', SHA2('motdepasse2', 256), 'logisticien'),
+('admin1', SHA2('adminpass', 256), 'admin');
 
 
 --Essai d’insertion d’un camion avec un poids invalide (doit échouer)
-
 INSERT INTO Camions (immat, type_camion, poids_transport) VALUES
 ('ZZ-999-AA', 'frigo', -5000.00);  -- Échoue car poids_transport < 0
 
 --Essai d’insertion d’une cargaison avec un camion inexistant (doit échouer)
-
 INSERT INTO Cargaisons (date_transport, ville_depart, ville_arrivee, immat, numero_permis) VALUES
 ('2024-03-12', 'Paris', 'Lyon', 'XX-000-YY', 'PERM123456');  -- Échoue car XX-000-YY n'existe pas dans Camions
 
 --Essai d’insertion d’une marchandise avec un type de camion invalide (doit échouer)
-
 INSERT INTO Marchandises (nom, type_requis, poids, id_cargaison) VALUES
 ('Téléviseurs', 'camion-benne', 5000.00, 1);  -- Échoue car 'camion-benne' n'est pas un type valide
 
 
-
---Liste des marchandises triées par ville de départ et par poids
+--Q1 Liste des marchandises triées par ville de départ et par poids
 
 SELECT nom, type_requis, poids, ville_depart
 FROM Marchandises
 NATURAL JOIN Cargaisons
 ORDER BY ville_depart ASC, poids DESC;
 
---Liste des camions de type frigo avec un poids total de marchandises > 15 tonnes
+--Q2 Liste des camions de type frigo avec un poids total de marchandises > 15 tonnes
 
 SELECT immat, type_camion, SUM(poids) AS poids_total
 FROM Camions
@@ -103,7 +102,7 @@ WHERE type_camion = 'frigo'
 GROUP BY immat, type_camion
 HAVING SUM(poids) > 15000;
 
---Liste des chauffeurs non affectés à un camion le 1/4/2021
+--Q3 Liste des chauffeurs non affectés à un camion le 1/4/2021
 
 SELECT numero_permis, nom, prenom
 FROM Chauffeurs
@@ -113,14 +112,14 @@ WHERE numero_permis NOT IN (
     WHERE date_transport = '2021-04-01'
 );
 
---Nombre de jours d’utilisation par camion
+--Q4 Nombre de jours d’utilisation par camion
 
 SELECT immat, COUNT(DISTINCT date_transport) AS jours_utilisation
 FROM Camions
 NATURAL JOIN Cargaisons
 GROUP BY immat;
 
---La ville qui a le plus de livraisons de cargaisons
+--Q5 La ville qui a le plus de livraisons de cargaisons
 
 SELECT ville_arrivee, COUNT(*) AS nombre_livraisons
 FROM Cargaisons
@@ -128,8 +127,27 @@ GROUP BY ville_arrivee
 ORDER BY nombre_livraisons DESC
 LIMIT 1;
 
--- Création de la première vue Nombre de jours travaillés par chauffeur (pour les chauffeurs)
 
+-- Création du rôle chauffeur
+CREATE ROLE 'role_chauffeur';
+
+-- Création du rôle logisticien
+CREATE ROLE 'role_logisticien';
+
+-- Droits du chauffeur
+GRANT SELECT ON cametard.Chauffeurs TO 'role_chauffeur';
+GRANT SELECT ON cametard.Camions TO 'role_chauffeur';
+GRANT SELECT ON cametard.Cargaisons TO 'role_chauffeur';
+GRANT SELECT ON cametard.Marchandises TO 'role_chauffeur';
+
+-- Droits du logisticien (gestion des affectations, camions et marchandises)
+GRANT SELECT, INSERT ON cametard.Chauffeurs TO 'role_logisticien';
+GRANT SELECT, INSERT ON cametard.Camions TO 'role_logisticien';
+GRANT SELECT, INSERT, UPDATE ON cametard.Cargaisons TO 'role_logisticien';
+GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'role_logisticien';
+
+
+-- Création de la première vue Nombre de jours travaillés par chauffeur (pour les chauffeurs)
 CREATE VIEW vue_jours_travailles AS
 SELECT 
     numero_permis, 
@@ -139,73 +157,31 @@ SELECT
 FROM Cargaisons
 GROUP BY numero_permis, annee, mois;
 
--- Création de la deuxième vue Synthèse des cargaisons en attente (pour les logisticiens)
+--On donne les droits aux chauffeurs pour cette vue
+GRANT SELECT ON cametard.vue_jours_travailles TO 'role_chauffeur';
 
+
+-- Création de la deuxième vue Synthèse des cargaisons (pour les logisticiens)
 CREATE VIEW vue_cargaisons AS
 SELECT 
-    c.id_cargaison, 
-    c.date_transport, 
-    c.ville_depart, 
-    c.ville_arrivee, 
-    cam.immat AS camion, 
-    ch.numero_permis AS chauffeur
-FROM Cargaisons c
-JOIN Camions cam ON c.immat = cam.immat
-JOIN Chauffeurs ch ON c.numero_permis = ch.numero_permis;
+    id_cargaison, 
+    date_transport, 
+    ville_depart, 
+    ville_arrivee, 
+    immat AS camion, 
+    numero_permis AS chauffeur
+FROM Cargaisons
+NATURAL JOIN Camions
+NATURAL JOIN Chauffeurs;
 
--- Création de l'utilisateur chauffeur
-
-CREATE USER 'chauffeur'@'localhost' IDENTIFIED BY 'chauffeur123';
-
--- Création de l'utilisateur logisticien
-
-CREATE USER 'logisticien'@'localhost' IDENTIFIED BY 'logisticien123';
-
--- Création des droits pour le chauffeur, il peut seulement voir ses affectations et son nombre de jours travaillés.
-
-GRANT SELECT ON cametard.vue_cargaisons TO 'chauffeur'@'localhost';
-GRANT SELECT ON cametard.vue_jours_travailles TO 'chauffeur'@'localhost';
-FLUSH PRIVILEGES;
-
--- Création des droits pour le logisticien, il peut gérer les affectations, les camions et les cargaisons.
-
-GRANT SELECT, INSERT, UPDATE ON cametard.Chauffeurs TO 'logisticien'@'localhost';
-GRANT SELECT, INSERT ON cametard.Camions TO 'logisticien'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON cametard.Cargaisons TO 'logisticien'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'logisticien'@'localhost';
-FLUSH PRIVILEGES;
+--On donne les droits aux logisticiens pour cette vue
+GRANT SELECT ON cametard.vue_cargaisons TO 'role_logisticien';
 
 
--- Insertions utilisateurs dans la table logins
+-- Création des utilisateurs
+CREATE USER 'chauffeur1'@'localhost' IDENTIFIED BY 'mdp1';
+CREATE USER 'logisticien1'@'localhost' IDENTIFIED BY 'mdp2';
 
-INSERT INTO Logins (username, password_hash, role) VALUES
-('chauffeur1', SHA2('motdepasse1', 256), 'chauffeur'),
-('logisticien1', SHA2('motdepasse2', 256), 'logisticien'),
-('admin1', SHA2('adminpass', 256), 'admin');
-
-/*
-
-1️⃣ Définition des accès :
-
-    Chauffeur (lecture seule) sur vue_cargaisons, vue_jours_travailles.
-    Logisticien (lecture/ajout/modif) sur Chauffeurs, Camions, Cargaisons, Marchandises.
-
-2️⃣ Création des vues :
-
-    vue_jours_travailles : Nombre de jours travaillés (chauffeurs).
-    vue_cargaisons : Synthèse des cargaisons en attente (logisticiens).
-
-3️⃣ Création des utilisateurs :
-
-    chauffeur (lecture uniquement).
-    logisticien (gestion des affectations).
-
-4️⃣ Attribution des droits (GRANT) :
-
-    Chauffeur : Lecture (SELECT) sur ses données.
-    Logisticien : Gestion (INSERT, UPDATE) des cargaisons, chauffeurs et camions.
-
-*/
-
-
-
+-- Attribution des rôles aux utilisateurs
+GRANT 'role_chauffeur' TO 'chauffeur1'@'localhost';
+GRANT 'role_logisticien' TO 'logisticien1'@'localhost';
