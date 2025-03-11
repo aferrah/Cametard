@@ -37,8 +37,7 @@ CREATE TABLE Marchandises(
 CREATE TABLE Logins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) CHECK (role IN ('chauffeur', 'logisticien', 'admin'))
+    password_hash VARCHAR(255) NOT NULL
 );
 
 
@@ -67,10 +66,10 @@ INSERT INTO Marchandises (nom, type_requis, poids, id_cargaison) VALUES
 ('Béton', 'plateau', 14000.00, 4),
 ('Poissons', 'frigo', 2000.00, 1);
 
-INSERT INTO Logins (username, password_hash, role) VALUES
-('chauffeur1', SHA2('motdepasse1', 256), 'chauffeur'),
-('logisticien1', SHA2('motdepasse2', 256), 'logisticien'),
-('admin1', SHA2('adminpass', 256), 'admin');
+INSERT INTO Logins (username, password_hash) VALUES
+('chauffeur1', SHA2('motdepasse1', 256)),
+('logisticien1', SHA2('motdepasse2', 256)),
+('admin1', SHA2('adminpass', 256));
 
 
 --Essai d’insertion d’un camion avec un poids invalide (doit échouer)
