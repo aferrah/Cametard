@@ -37,7 +37,8 @@ CREATE TABLE Marchandises(
 CREATE TABLE Logins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) CHECK (role IN ('chauffeur', 'logisticien', 'admin'))
 );
 
 
