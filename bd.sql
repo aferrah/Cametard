@@ -175,6 +175,14 @@ GRANT SELECT, INSERT, UPDATE ON cametard.Cargaisons TO 'logisticien'@'localhost'
 GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'logisticien'@'localhost';
 FLUSH PRIVILEGES;
 
+
+-- Insertions utilisateurs dans la table logins
+
+INSERT INTO Logins (username, password_hash, role) VALUES
+('chauffeur1', SHA2('motdepasse1', 256), 'chauffeur'),
+('logisticien1', SHA2('motdepasse2', 256), 'logisticien'),
+('admin1', SHA2('adminpass', 256), 'admin');
+
 /*
 
 1️⃣ Définition des accès :
