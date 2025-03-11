@@ -128,5 +128,76 @@ GROUP BY ville_arrivee
 ORDER BY nombre_livraisons DESC
 LIMIT 1;
 
+-- Création de la première vue Nombre de jours travaillés par chauffeur (pour les chauffeurs)
+
+CREATE VIEW vue_jours_travailles AS
+SELECT 
+    numero_permis, 
+    YEAR(date_transport) AS annee,
+    MONTH(date_transport) AS mois,
+    COUNT(DISTINCT date_transport) AS jours_travailles
+FROM Cargaisons
+GROUP BY numero_permis, annee, mois;
+
+-- Création de la deuxième vue Synthèse des cargaisons en attente (pour les logisticiens)
+
+CREATE VIEW vue_cargaisons AS
+SELECT 
+    c.id_cargaison, 
+    c.date_transport, 
+    c.ville_depart, 
+    c.ville_arrivee, 
+    cam.immat AS camion, 
+    ch.numero_permis AS chauffeur
+FROM Cargaisons c
+JOIN Camions cam ON c.immat = cam.immat
+JOIN Chauffeurs ch ON c.numero_permis = ch.numero_permis;
+
+-- Création de l'utilisateur chauffeur
+
+CREATE USER 'chauffeur'@'localhost' IDENTIFIED BY 'chauffeur123';
+
+-- Création de l'utilisateur logisticien
+
+CREATE USER 'logisticien'@'localhost' IDENTIFIED BY 'logisticien123';
+
+-- Création des droits pour le chauffeur, il peut seulement voir ses affectations et son nombre de jours travaillés.
+
+GRANT SELECT ON cametard.vue_cargaisons TO 'chauffeur'@'localhost';
+GRANT SELECT ON cametard.vue_jours_travailles TO 'chauffeur'@'localhost';
+FLUSH PRIVILEGES;
+
+-- Création des droits pour le logisticien, il peut gérer les affectations, les camions et les cargaisons.
+
+GRANT SELECT, INSERT, UPDATE ON cametard.Chauffeurs TO 'logisticien'@'localhost';
+GRANT SELECT, INSERT ON cametard.Camions TO 'logisticien'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON cametard.Cargaisons TO 'logisticien'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'logisticien'@'localhost';
+FLUSH PRIVILEGES;
+
+/*
+
+1️⃣ Définition des accès :
+
+    Chauffeur (lecture seule) sur vue_cargaisons, vue_jours_travailles.
+    Logisticien (lecture/ajout/modif) sur Chauffeurs, Camions, Cargaisons, Marchandises.
+
+2️⃣ Création des vues :
+
+    vue_jours_travailles : Nombre de jours travaillés (chauffeurs).
+    vue_cargaisons : Synthèse des cargaisons en attente (logisticiens).
+
+3️⃣ Création des utilisateurs :
+
+    chauffeur (lecture uniquement).
+    logisticien (gestion des affectations).
+
+4️⃣ Attribution des droits (GRANT) :
+
+    Chauffeur : Lecture (SELECT) sur ses données.
+    Logisticien : Gestion (INSERT, UPDATE) des cargaisons, chauffeurs et camions.
+
+*/
+
 
 
