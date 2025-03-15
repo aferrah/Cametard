@@ -9,10 +9,10 @@ include "config.php";
 
 // Récupérer les informations de l'utilisateur connecté
 $user_id = $_SESSION["user_id"];
-$stmt = $conn->prepare("SELECT username FROM Logins WHERE id = ?");
+$stmt = $conn->prepare("SELECT username, role FROM Logins WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($username);
+$stmt->bind_result($username, $role);
 $stmt->fetch();
 $stmt->close();
 ?>
@@ -29,11 +29,13 @@ $stmt->close();
     <div class="container mt-5">
         <div class="card shadow p-4">
             <h2 class="text-center">Bienvenue, <?= htmlspecialchars($username) ?> !</h2>
+            <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
 
             <div class="d-flex justify-content-center mt-4">
                 <a href="recherche_camions.php" class="btn btn-primary mx-2">🔍 Rechercher Camions</a>
                 <a href="ajouter_camion.php" class="btn btn-success mx-2">🚛 Ajouter un Camion</a>
                 <a href="modifier_chauffeur.php" class="btn btn-warning mx-2">✏️ Modifier Chauffeurs</a>
+                <a href="localisation_camions.php" class="btn btn-info mx-2">📍 Localiser Camions</a>
                 <a href="logout.php" class="btn btn-danger mx-2">🚪 Déconnexion</a>
             </div>
         </div>

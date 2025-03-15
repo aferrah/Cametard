@@ -6,29 +6,37 @@ if (!isset($_SESSION["user_id"])) {
 }
 include "config.php";
 
-// Récupérer la liste des chauffeurs
 $chauffeurs = [];
 $result = $conn->query("SELECT numero_permis, nom, prenom FROM Chauffeurs ORDER BY nom");
 while ($row = $result->fetch_assoc()) {
     $chauffeurs[] = $row;
 }
 
-// Traitement de la modification
 $message = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $numero_permis = $_POST["numero_permis"];
-    $nom = $_POST["nom"];
-    $prenom = $_POST["prenom"];
-
-    $stmt = $conn->prepare("UPDATE Chauffeurs SET nom = ?, prenom = ? WHERE numero_permis = ?");
-    $stmt->bind_param("sss", $nom, $prenom, $numero_permis);
-    
-    if ($stmt->execute()) {
-        $message = "<div class='alert alert-success'>✅ Chauffeur mis à jour.</div>";
+    if (isset($_POST["delete"])) {
+        $numero_permis = $_POST["numero_permis"];
+        $stmt = $conn->prepare("DELETE FROM Chauffeurs WHERE numero_permis = ?");
+        $stmt->bind_param("s", $numero_permis);
+        if ($stmt->execute()) {
+            $message = "<div class='alert alert-success'>✅ Chauffeur supprimé.</div>";
+        } else {
+            $message = "<div class='alert alert-danger'>⚠️ Erreur lors de la suppression.</div>";
+        }
+        $stmt->close();
     } else {
-        $message = "<div class='alert alert-danger'>⚠️ Erreur lors de la mise à jour.</div>";
+        $numero_permis = $_POST["numero_permis"];
+        $nom = $_POST["nom"];
+        $prenom = $_POST["prenom"];
+        $stmt = $conn->prepare("UPDATE Chauffeurs SET nom = ?, prenom = ? WHERE numero_permis = ?");
+        $stmt->bind_param("sss", $nom, $prenom, $numero_permis);
+        if ($stmt->execute()) {
+            $message = "<div class='alert alert-success'>✅ Chauffeur mis à jour.</div>";
+        } else {
+            $message = "<div class='alert alert-danger'>⚠️ Erreur lors de la mise à jour.</div>";
+        }
+        $stmt->close();
     }
-    $stmt->close();
 }
 ?>
 
@@ -59,24 +67,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Nom</label>
-                    <input type="text" id="nom" name="nom" class="form-control" required>
+                <div id="chauffeur-info" style="display:none;">
+                    <p id="chauffeur-selected" class="text-center text-primary"></p>
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" id="nom" name="nom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">🔄 Modifier</button>
+                    <button type="submit" name="delete" class="btn btn-danger w-100 mt-2">🗑 Supprimer</button>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Prénom</label>
-                    <input type="text" id="prenom" name="prenom" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-warning w-100">🔄 Modifier</button>
             </form>
         </div>
     </div>
-
+    
     <script>
         function updateFields(select) {
             let selectedOption = select.options[select.selectedIndex];
-            document.getElementById("nom").value = selectedOption.getAttribute("data-nom");
-            document.getElementById("prenom").value = selectedOption.getAttribute("data-prenom");
+            let nom = selectedOption.getAttribute("data-nom");
+            let prenom = selectedOption.getAttribute("data-prenom");
+            
+            document.getElementById("nom").value = nom;
+            document.getElementById("prenom").value = prenom;
+            document.getElementById("chauffeur-info").style.display = "block";
+            document.getElementById("chauffeur-selected").textContent = `Chauffeur ${nom} ${prenom} sélectionné`;
         }
     </script>
 </body>

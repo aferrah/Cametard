@@ -148,7 +148,7 @@ GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'role_logisticien';
 
 
 -- Création de la première vue Nombre de jours travaillés par chauffeur (pour les chauffeurs)
-CREATE VIEW vue_jours_travailles AS
+CREATE VIEW vue_jours_travailles AS 
 SELECT 
     numero_permis, 
     YEAR(date_transport) AS annee,
@@ -185,3 +185,21 @@ CREATE USER 'logisticien1'@'localhost' IDENTIFIED BY 'mdp2';
 -- Attribution des rôles aux utilisateurs
 GRANT 'role_chauffeur' TO 'chauffeur1'@'localhost';
 GRANT 'role_logisticien' TO 'logisticien1'@'localhost';
+
+-- Rajouté pour la localisation
+
+CREATE TABLE Localisation (
+    id_localisation INT AUTO_INCREMENT PRIMARY KEY,
+    date_localisation DATE NOT NULL,
+    immat VARCHAR(10) NOT NULL,
+    ville_matin VARCHAR(50) NOT NULL,
+    ville_soir VARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Localisation_Camions FOREIGN KEY (immat) REFERENCES Camions(immat) ON DELETE CASCADE
+);
+
+
+INSERT INTO Localisation (date_localisation, immat, ville_matin, ville_soir) VALUES
+('2024-03-10', 'AB-123-CD', 'Paris', 'Lyon'),
+('2024-03-10', 'XY-456-ZZ', 'Marseille', 'Bordeaux'),
+('2024-03-11', 'EF-789-GH', 'Lille', 'Nantes'),
+('2024-03-11', 'LM-345-NO', 'Nice', 'Toulouse');
