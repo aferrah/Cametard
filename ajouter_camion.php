@@ -33,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
+    <a href="index.php" class="btn btn-secondary m-3">🏠 Accueil</a>
     <div class="container mt-5">
         <div class="card p-4 shadow-lg">
             <h2 class="text-center">🚛 Ajouter un Camion</h2>

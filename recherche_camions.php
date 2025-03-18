@@ -45,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </head>
 <body class="bg-light">
+    <a href="index.php" class="btn btn-secondary m-3">🏠 Accueil</a>
     <div class="container mt-5">
         <div class="card p-4 shadow-lg">
             <h2 class="text-center">🔍 Recherche de Camions</h2>
