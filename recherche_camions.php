@@ -6,27 +6,54 @@ if (!isset($_SESSION["user_id"])) {
 }
 include "config.php";
 
+$types_camions = ['frigo', 'citerne', 'palette', 'plateau'];
 $ville_options = [];
-$result = $conn->query("SELECT DISTINCT ville_arrivee FROM Cargaisons ORDER BY ville_arrivee");
-while ($row = $result->fetch_assoc()) {
-    $ville_options[] = $row['ville_arrivee'];
-}
-
-$results = [];
 $searchPerformed = false;
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $searchPerformed = true;
-    $type = $_POST["type"];
-    $ville = $_POST["ville"];
+$results = [];
+$type = $ville = $ville_type = "";
 
-    $stmt = $conn->prepare("SELECT cam.immat, cam.type_camion, c.id_cargaison, c.date_transport, c.ville_depart, c.ville_arrivee, c.numero_permis, ch.nom, ch.prenom FROM Camions cam JOIN Cargaisons c ON cam.immat = c.immat JOIN Chauffeurs ch ON c.numero_permis = ch.numero_permis WHERE cam.type_camion = ? AND c.ville_arrivee = ?");
-    $stmt->bind_param("ss", $type, $ville);
+// Vérifier si un type de camion a été sélectionné avant d'afficher les villes
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["type"])) {
+    $type = $_POST["type"];
+    $ville_type = isset($_POST["ville_type"]) ? $_POST["ville_type"] : "arrivee";
+
+    // Récupérer les villes en fonction du type de camion sélectionné
+    $stmt = $conn->prepare("
+        SELECT DISTINCT " . ($ville_type === 'depart' ? "ville_depart" : "ville_arrivee") . " 
+        FROM Cargaisons c 
+        JOIN Camions cam ON c.immat = cam.immat 
+        WHERE cam.type_camion = ? 
+        ORDER BY " . ($ville_type === 'depart' ? "ville_depart" : "ville_arrivee")
+    );
+    $stmt->bind_param("s", $type);
     $stmt->execute();
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
-        $results[] = $row;
+        $ville_options[] = $row[$ville_type === 'depart' ? "ville_depart" : "ville_arrivee"];
     }
     $stmt->close();
+
+    // Vérifier si une ville a été sélectionnée avant d'exécuter la recherche
+    if (!empty($_POST["ville"])) {
+        $ville = $_POST["ville"];
+        $searchPerformed = true;
+
+        // Rechercher les cargaisons correspondantes
+        $stmt = $conn->prepare("
+            SELECT cam.immat, cam.type_camion, c.id_cargaison, c.date_transport, c.ville_depart, c.ville_arrivee, c.numero_permis, ch.nom, ch.prenom 
+            FROM Camions cam 
+            JOIN Cargaisons c ON cam.immat = c.immat 
+            JOIN Chauffeurs ch ON c.numero_permis = ch.numero_permis 
+            WHERE cam.type_camion = ? AND " . ($ville_type === 'depart' ? "c.ville_depart" : "c.ville_arrivee") . " = ?"
+        );
+        $stmt->bind_param("ss", $type, $ville);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $results[] = $row;
+        }
+        $stmt->close();
+    }
 }
 ?>
 
@@ -38,33 +65,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Rechercher des Camions</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>
-        function toggleDetails(id) {
-            let details = document.getElementById("details-" + id);
-            details.style.display = details.style.display === "none" ? "block" : "none";
+        function updateVilleOptions() {
+            document.querySelector('form').submit();
         }
     </script>
 </head>
 <body class="bg-light">
-    <a href="index.php" class="btn btn-secondary m-3">🏠 Accueil</a>
+    <a href="index.php" class="btn btn-secondary mb-3">🏠 Accueil</a>
     <div class="container mt-5">
         <div class="card p-4 shadow-lg">
             <h2 class="text-center">🔍 Recherche de Camions</h2>
             <form method="post" class="mt-4">
                 <div class="mb-3">
                     <label class="form-label">Type de camion</label>
-                    <select name="type" class="form-control" required>
-                        <option value="frigo">Frigo</option>
-                        <option value="citerne">Citerne</option>
-                        <option value="palette">Palette</option>
-                        <option value="plateau">Plateau</option>
+                    <select name="type" class="form-control" required onchange="updateVilleOptions()">
+                        <option value="" disabled selected>Sélectionner un type</option>
+                        <?php foreach ($types_camions as $t): ?>
+                            <option value="<?= htmlspecialchars($t) ?>" <?= $type == $t ? "selected" : "" ?>><?= htmlspecialchars($t) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Ville d'arrivée</label>
+                    <label class="form-label">Type de ville</label>
+                    <select name="ville_type" class="form-control" required onchange="updateVilleOptions()">
+                        <option value="depart" <?= $ville_type == 'depart' ? "selected" : "" ?>>Ville de départ</option>
+                        <option value="arrivee" <?= $ville_type == 'arrivee' ? "selected" : "" ?>>Ville d'arrivée</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ville</label>
                     <select name="ville" class="form-control" required>
                         <option value="" disabled selected>Sélectionner une ville</option>
-                        <?php foreach ($ville_options as $ville): ?>
-                            <option value="<?= htmlspecialchars($ville) ?>"><?= htmlspecialchars($ville) ?></option>
+                        <?php foreach ($ville_options as $v): ?>
+                            <option value="<?= htmlspecialchars($v) ?>" <?= $ville == $v ? "selected" : "" ?>><?= htmlspecialchars($v) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -78,15 +111,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <ul class="list-group">
                             <?php foreach ($results as $row): ?>
                                 <li class="list-group-item">
-                                    <button class="btn btn-link" onclick="toggleDetails(<?= $row['id_cargaison'] ?>)">
-                                        🚛 Camion <?= htmlspecialchars($row["immat"]) ?> - Cargaison ID: <?= htmlspecialchars($row["id_cargaison"]) ?>
-                                    </button>
-                                    <div id="details-<?= $row['id_cargaison'] ?>" style="display:none; margin-top:10px;" class="border p-2 bg-light">
-                                        <p><strong>Date:</strong> <?= htmlspecialchars($row["date_transport"]) ?></p>
-                                        <p><strong>Ville Départ:</strong> <?= htmlspecialchars($row["ville_depart"]) ?></p>
-                                        <p><strong>Ville Arrivée:</strong> <?= htmlspecialchars($row["ville_arrivee"]) ?></p>
-                                        <p><strong>Chauffeur:</strong> <?= htmlspecialchars($row["nom"]) ?> <?= htmlspecialchars($row["prenom"]) ?></p>
-                                    </div>
+                                    🚛 Camion <?= htmlspecialchars($row["immat"]) ?> - Cargaison ID: <?= htmlspecialchars($row["id_cargaison"]) ?>
+                                    <br><strong>Date:</strong> <?= htmlspecialchars($row["date_transport"]) ?>
+                                    <br><strong>Départ:</strong> <?= htmlspecialchars($row["ville_depart"]) ?>
+                                    <br><strong>Arrivée:</strong> <?= htmlspecialchars($row["ville_arrivee"]) ?>
+                                    <br><strong>Chauffeur:</strong> <?= htmlspecialchars($row["nom"]) ?> <?= htmlspecialchars($row["prenom"]) ?>
                                 </li>
                             <?php endforeach; ?>
                         </ul>

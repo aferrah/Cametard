@@ -185,3 +185,55 @@ CREATE USER 'logisticien1'@'localhost' IDENTIFIED BY 'mdp2';
 -- Attribution des rôles aux utilisateurs
 GRANT 'role_chauffeur' TO 'chauffeur1'@'localhost';
 GRANT 'role_logisticien' TO 'logisticien1'@'localhost';
+
+
+
+
+-- QUELQUES INSERTIONS
+
+
+-- Insertion de camions
+
+INSERT INTO Camions (immat, type_camion, poids_transport) VALUES
+('AB-001-CD', 'frigo', 18000.00), ('AB-002-CD', 'frigo', 19000.00),
+('XY-101-ZZ', 'citerne', 25000.00), ('XY-102-ZZ', 'citerne', 23000.00),
+('EF-201-GH', 'palette', 12000.00), ('EF-202-GH', 'palette', 15000.00),
+('LM-301-NO', 'plateau', 15000.00), ('LM-302-NO', 'plateau', 18000.00),
+('QR-401-ST', 'frigo', 20000.00), ('QR-402-ST', 'frigo', 17000.00),
+('JK-501-YU', 'citerne', 26000.00), ('JK-502-YU', 'citerne', 24000.00),
+('WX-601-OP', 'palette', 14000.00), ('WX-602-OP', 'palette', 13000.00),
+('TZ-701-QM', 'plateau', 16000.00), ('TZ-702-QM', 'plateau', 17000.00);
+
+-- Insertion de Chauffeurs
+
+INSERT INTO Chauffeurs (numero_permis, nom, prenom) VALUES
+('PERM0001', 'Durand', 'Jean'), ('PERM0002', 'Martin', 'Sophie'),
+('PERM0003', 'Leroy', 'Thomas'), ('PERM0004', 'Dupont', 'Alice'),
+('PERM0005', 'Roux', 'Michel'), ('PERM0006', 'Moreau', 'Julie'),
+('PERM0007', 'Fournier', 'Pierre'), ('PERM0008', 'Garnier', 'Pauline'),
+('PERM0009', 'Blanc', 'Nicolas'), ('PERM0010', 'Fontaine', 'Camille'),
+('PERM0011', 'Leclerc', 'Antoine'), ('PERM0012', 'Barbier', 'Émilie'),
+('PERM0013', 'Robin', 'Hugo'), ('PERM0014', 'Gauthier', 'Marine');
+
+-- Insertion de Cargaisons
+
+INSERT INTO Cargaisons (date_transport, ville_depart, ville_arrivee, immat, numero_permis) VALUES
+('2024-03-01', 'Paris', 'Lyon', 'AB-001-CD', 'PERM0001'),
+('2024-03-02', 'Marseille', 'Bordeaux', 'XY-101-ZZ', 'PERM0002'),
+('2024-03-03', 'Lille', 'Nantes', 'EF-201-GH', 'PERM0003'),
+('2024-03-04', 'Nice', 'Toulouse', 'LM-301-NO', 'PERM0004'),
+('2024-03-05', 'Strasbourg', 'Rennes', 'QR-401-ST', 'PERM0005'),
+('2024-03-06', 'Dijon', 'Montpellier', 'JK-501-YU', 'PERM0006'),
+('2024-03-07', 'Grenoble', 'Rouen', 'WX-601-OP', 'PERM0007'),
+('2024-03-08', 'Metz', 'Orléans', 'TZ-701-QM', 'PERM0008'),
+('2024-03-09', 'Nîmes', 'Reims', 'AB-002-CD', 'PERM0009'),
+('2024-03-10', 'Perpignan', 'Le Havre', 'XY-102-ZZ', 'PERM0010');
+
+-- Insertion de Marchandises
+
+INSERT INTO Marchandises (nom, type_requis, poids, id_cargaison) VALUES
+('Pommes', 'frigo', 16000.00, 1), ('Poissons', 'frigo', 2000.00, 1),
+('Carburant', 'citerne', 24000.00, 2), ('Gaz liquide', 'citerne', 25000.00, 2),
+('Meubles', 'palette', 10000.00, 3), ('Électroménager', 'palette', 12000.00, 3),
+('Béton', 'plateau', 14000.00, 4), ('Matériaux de construction', 'plateau', 17000.00, 4),
+('Produits laitiers', 'frigo', 18000.00, 5), ('Vin', 'frigo', 15000.00, 6);
