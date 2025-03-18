@@ -7,10 +7,10 @@ if (!isset($_SESSION["user_id"])) {
 include "config.php";
 
 $user_id = $_SESSION["user_id"];
-$stmt = $conn->prepare("SELECT username FROM Logins WHERE id = ?");
+$stmt = $conn->prepare("SELECT username, role FROM Logins WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($username);
+$stmt->bind_result($username, $role);
 $stmt->fetch();
 $stmt->close();
 ?>
@@ -27,6 +27,7 @@ $stmt->close();
     <div class="container mt-5">
         <div class="card shadow p-4">
             <h2 class="text-center">Bienvenue, <?= htmlspecialchars($username) ?> !</h2>
+            <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
             
             <div class="d-flex justify-content-center mt-4">
                 <a href="recherche_camions.php" class="btn btn-primary mx-2">🔍 Rechercher Camions</a>

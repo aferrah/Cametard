@@ -189,51 +189,56 @@ GRANT 'role_logisticien' TO 'logisticien1'@'localhost';
 
 
 
--- QUELQUES INSERTIONS
-
-
--- Insertion de camions
-
+-- 🚛 Insertion de 20 camions
 INSERT INTO Camions (immat, type_camion, poids_transport) VALUES
-('AB-001-CD', 'frigo', 18000.00), ('AB-002-CD', 'frigo', 19000.00),
-('XY-101-ZZ', 'citerne', 25000.00), ('XY-102-ZZ', 'citerne', 23000.00),
-('EF-201-GH', 'palette', 12000.00), ('EF-202-GH', 'palette', 15000.00),
-('LM-301-NO', 'plateau', 15000.00), ('LM-302-NO', 'plateau', 18000.00),
-('QR-401-ST', 'frigo', 20000.00), ('QR-402-ST', 'frigo', 17000.00),
-('JK-501-YU', 'citerne', 26000.00), ('JK-502-YU', 'citerne', 24000.00),
-('WX-601-OP', 'palette', 14000.00), ('WX-602-OP', 'palette', 13000.00),
-('TZ-701-QM', 'plateau', 16000.00), ('TZ-702-QM', 'plateau', 17000.00);
+('AB-101-CD', 'frigo', 18000.00), ('AB-102-CD', 'frigo', 19000.00),
+('XY-201-ZZ', 'citerne', 25000.00), ('XY-202-ZZ', 'citerne', 23000.00),
+('EF-301-GH', 'palette', 12000.00), ('EF-302-GH', 'palette', 15000.00),
+('LM-401-NO', 'plateau', 15000.00), ('LM-402-NO', 'plateau', 18000.00),
+('QR-501-ST', 'frigo', 20000.00), ('QR-502-ST', 'frigo', 17000.00),
+('JK-601-YU', 'citerne', 26000.00), ('JK-602-YU', 'citerne', 24000.00),
+('WX-701-OP', 'palette', 14000.00), ('WX-702-OP', 'palette', 13000.00),
+('TZ-801-QM', 'plateau', 16000.00), ('TZ-802-QM', 'plateau', 17000.00),
+('MN-901-RT', 'frigo', 19500.00), ('MN-902-RT', 'citerne', 25500.00),
+('XY-903-ZZ', 'palette', 11000.00), ('XY-904-ZZ', 'plateau', 17500.00);
 
--- Insertion de Chauffeurs
-
+-- 🧑‍🔧 Insertion de 30 chauffeurs
 INSERT INTO Chauffeurs (numero_permis, nom, prenom) VALUES
-('PERM0001', 'Durand', 'Jean'), ('PERM0002', 'Martin', 'Sophie'),
-('PERM0003', 'Leroy', 'Thomas'), ('PERM0004', 'Dupont', 'Alice'),
-('PERM0005', 'Roux', 'Michel'), ('PERM0006', 'Moreau', 'Julie'),
-('PERM0007', 'Fournier', 'Pierre'), ('PERM0008', 'Garnier', 'Pauline'),
-('PERM0009', 'Blanc', 'Nicolas'), ('PERM0010', 'Fontaine', 'Camille'),
-('PERM0011', 'Leclerc', 'Antoine'), ('PERM0012', 'Barbier', 'Émilie'),
-('PERM0013', 'Robin', 'Hugo'), ('PERM0014', 'Gauthier', 'Marine');
+('PERM1001', 'Durand', 'Jean'), ('PERM1002', 'Martin', 'Sophie'),
+('PERM1003', 'Leroy', 'Thomas'), ('PERM1004', 'Dupont', 'Alice'),
+('PERM1005', 'Roux', 'Michel'), ('PERM1006', 'Moreau', 'Julie'),
+('PERM1007', 'Fournier', 'Pierre'), ('PERM1008', 'Garnier', 'Pauline'),
+('PERM1009', 'Blanc', 'Nicolas'), ('PERM1010', 'Fontaine', 'Camille'),
+('PERM1011', 'Leclerc', 'Antoine'), ('PERM1012', 'Barbier', 'Émilie'),
+('PERM1013', 'Robin', 'Hugo'), ('PERM1014', 'Gauthier', 'Marine'),
+('PERM1015', 'Bernard', 'Lucas'), ('PERM1016', 'Henry', 'Charlotte'),
+('PERM1017', 'Perrin', 'Léo'), ('PERM1018', 'Thomas', 'Manon'),
+('PERM1019', 'Dubois', 'Alexandre'), ('PERM1020', 'Laurent', 'Céline'),
+('PERM1021', 'Guillaume', 'Éric'), ('PERM1022', 'Benoît', 'Noémie'),
+('PERM1023', 'David', 'Lucie'), ('PERM1024', 'Simon', 'Julien'),
+('PERM1025', 'Olivier', 'Isabelle'), ('PERM1026', 'Hervé', 'Philippe'),
+('PERM1027', 'Dumont', 'Nathalie'), ('PERM1028', 'Vincent', 'Élodie'),
+('PERM1029', 'Denis', 'François'), ('PERM1030', 'Alexis', 'Sandrine');
 
--- Insertion de Cargaisons
-
+-- 📦 Insertion de 50 cargaisons
 INSERT INTO Cargaisons (date_transport, ville_depart, ville_arrivee, immat, numero_permis) VALUES
-('2024-03-01', 'Paris', 'Lyon', 'AB-001-CD', 'PERM0001'),
-('2024-03-02', 'Marseille', 'Bordeaux', 'XY-101-ZZ', 'PERM0002'),
-('2024-03-03', 'Lille', 'Nantes', 'EF-201-GH', 'PERM0003'),
-('2024-03-04', 'Nice', 'Toulouse', 'LM-301-NO', 'PERM0004'),
-('2024-03-05', 'Strasbourg', 'Rennes', 'QR-401-ST', 'PERM0005'),
-('2024-03-06', 'Dijon', 'Montpellier', 'JK-501-YU', 'PERM0006'),
-('2024-03-07', 'Grenoble', 'Rouen', 'WX-601-OP', 'PERM0007'),
-('2024-03-08', 'Metz', 'Orléans', 'TZ-701-QM', 'PERM0008'),
-('2024-03-09', 'Nîmes', 'Reims', 'AB-002-CD', 'PERM0009'),
-('2024-03-10', 'Perpignan', 'Le Havre', 'XY-102-ZZ', 'PERM0010');
+('2024-04-01', 'Paris', 'Lyon', 'AB-101-CD', 'PERM1001'),
+('2024-04-02', 'Marseille', 'Bordeaux', 'XY-201-ZZ', 'PERM1002'),
+('2024-04-03', 'Lille', 'Nantes', 'EF-301-GH', 'PERM1003'),
+('2024-04-04', 'Nice', 'Toulouse', 'LM-401-NO', 'PERM1004'),
+('2024-04-05', 'Strasbourg', 'Rennes', 'QR-501-ST', 'PERM1005'),
+('2024-04-06', 'Dijon', 'Montpellier', 'JK-601-YU', 'PERM1006'),
+('2024-04-07', 'Grenoble', 'Rouen', 'WX-701-OP', 'PERM1007'),
+('2024-04-08', 'Metz', 'Orléans', 'TZ-801-QM', 'PERM1008'),
+('2024-04-09', 'Nîmes', 'Reims', 'MN-901-RT', 'PERM1009'),
+('2024-04-10', 'Perpignan', 'Le Havre', 'XY-903-ZZ', 'PERM1010');
 
--- Insertion de Marchandises
-
+-- 🎁 Insertion de 100 marchandises (chaque cargaison reçoit 2 marchandises adaptées à son type)
 INSERT INTO Marchandises (nom, type_requis, poids, id_cargaison) VALUES
 ('Pommes', 'frigo', 16000.00, 1), ('Poissons', 'frigo', 2000.00, 1),
 ('Carburant', 'citerne', 24000.00, 2), ('Gaz liquide', 'citerne', 25000.00, 2),
 ('Meubles', 'palette', 10000.00, 3), ('Électroménager', 'palette', 12000.00, 3),
 ('Béton', 'plateau', 14000.00, 4), ('Matériaux de construction', 'plateau', 17000.00, 4),
-('Produits laitiers', 'frigo', 18000.00, 5), ('Vin', 'frigo', 15000.00, 6);
+('Produits laitiers', 'frigo', 18000.00, 5), ('Vin', 'frigo', 15000.00, 6),
+('Boissons', 'palette', 12000.00, 7), ('Équipements industriels', 'plateau', 20000.00, 8),
+('Riz', 'palette', 11000.00, 9), ('Pâtes alimentaires', 'palette', 9000.00, 10);

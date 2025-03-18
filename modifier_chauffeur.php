@@ -6,13 +6,8 @@ if (!isset($_SESSION["user_id"])) {
 }
 include "config.php";
 
-$chauffeurs = [];
-$result = $conn->query("SELECT numero_permis, nom, prenom FROM Chauffeurs ORDER BY nom");
-while ($row = $result->fetch_assoc()) {
-    $chauffeurs[] = $row;
-}
-
 $message = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["delete"])) {
         $numero_permis = $_POST["numero_permis"];
@@ -24,6 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "<div class='alert alert-danger'>⚠️ Erreur lors de la suppression.</div>";
         }
         $stmt->close();
+        echo "<script>window.location.href='modifier_chauffeur.php';</script>";
+        exit();
     } else {
         $numero_permis = $_POST["numero_permis"];
         $nom = $_POST["nom"];
@@ -36,7 +33,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "<div class='alert alert-danger'>⚠️ Erreur lors de la mise à jour.</div>";
         }
         $stmt->close();
+        echo "<script>window.location.href='modifier_chauffeur.php';</script>";
+        exit();
     }
+}
+
+// Rafraîchir la liste des chauffeurs après modification/suppression
+$chauffeurs = [];
+$result = $conn->query("SELECT numero_permis, nom, prenom FROM Chauffeurs ORDER BY nom");
+while ($row = $result->fetch_assoc()) {
+    $chauffeurs[] = $row;
 }
 ?>
 
