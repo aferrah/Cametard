@@ -148,7 +148,7 @@ GRANT SELECT, INSERT, UPDATE ON cametard.Marchandises TO 'role_logisticien';
 
 
 -- Création de la première vue Nombre de jours travaillés par chauffeur (pour les chauffeurs)
-CREATE VIEW vue_jours_travailles AS 
+CREATE VIEW vue_jours_travailles AS
 SELECT 
     numero_permis, 
     YEAR(date_transport) AS annee,
@@ -185,4 +185,3 @@ CREATE USER 'logisticien1'@'localhost' IDENTIFIED BY 'mdp2';
 -- Attribution des rôles aux utilisateurs
 GRANT 'role_chauffeur' TO 'chauffeur1'@'localhost';
 GRANT 'role_logisticien' TO 'logisticien1'@'localhost';
-
